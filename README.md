@@ -1,3 +1,26 @@
+## Live Demo
+
+Try the deployed application:
+
+https://schedule-mcp-poc-9dxoxwgxbwzzzqukln3wmg.streamlit.app/
+
+The demo showcases an AI-powered academic scheduling assistant
+using OpenAI, the Model Context Protocol (MCP), and a simulated
+higher education Scheduling API.
+
+**Available features:**
+- Detect academic scheduling conflicts
+- View academic sections
+- Find available classrooms
+- Ask natural-language questions about scheduling conflicts
+
+**Prototype limitations:** The application uses simulated data.
+The conflict detection API demonstrates tenant-aware access using
+a fixed demo identity, not production authentication. The sections
+and room tools are not yet tenant-aware.
+
+---
+
 # Schedule MCP — Enterprise AI Integration Proof of Concept
 
 A working proof of concept demonstrating how an AI assistant can interact with an academic scheduling SaaS platform using the Model Context Protocol (MCP).
