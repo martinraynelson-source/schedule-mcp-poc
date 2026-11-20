@@ -1,0 +1,133 @@
+{
+  "timestamp": "2026-11-20T21:14:04.219245+00:00",
+  "total_cases": 6,
+  "completed_cases": 6,
+  "tool_selection_accuracy": 0.8333333333333334,
+  "average_fact_coverage": 0.8,
+  "total_input_tokens": 2919,
+  "total_output_tokens": 729,
+  "results": [
+    {
+      "id": "sections_biology",
+      "question": "Which Biology sections are scheduled for Spring 2027?",
+      "answer": "BIO101-01\nBIO201-01",
+      "expected_tool": "get_sections_by_term",
+      "selected_tools": [
+        "get_sections_by_term"
+      ],
+      "tool_correct": true,
+      "expected_terms": [
+        "BIO101-01",
+        "BIO201-01"
+      ],
+      "facts_found": [
+        "BIO101-01",
+        "BIO201-01"
+      ],
+      "fact_coverage": 1.0,
+      "latency_seconds": 2.944,
+      "input_tokens": 702,
+      "output_tokens": 66,
+      "error": null
+    },
+    {
+      "id": "rooms_available",
+      "question": "Which classrooms are available Monday from 9:30 AM to 10:30 AM for at least 30 students in Spring 2027?",
+      "answer": "Available classrooms on Monday from 9:30\u201310:30 AM for at least 30 students in Spring 2027:\n- Room R201 (capacity 60)",
+      "expected_tool": "find_available_rooms",
+      "selected_tools": [
+        "find_available_rooms"
+      ],
+      "tool_correct": true,
+      "expected_terms": [
+        "R201"
+      ],
+      "facts_found": [
+        "R201"
+      ],
+      "fact_coverage": 1.0,
+      "latency_seconds": 2.557,
+      "input_tokens": 505,
+      "output_tokens": 98,
+      "error": null
+    },
+    {
+      "id": "instructor_conflicts",
+      "question": "Are there any instructor scheduling conflicts in Spring 2027? Which sections are involved?",
+      "answer": "Yes. There are two instructor scheduling conflicts in Spring 2027.\n\n- Conflict 001: INSTRUCTOR_OVERLAP involving sections BIO101-01 and BIO201-01 on Monday (instructor I001). \n- Conflict 002: INSTRUCTOR_OVERLAP involving sections BIO101-01 on Monday (instructor I001) and CHEM101-01 on Monday (room R101) \u2014 i.e., room overlap, but also notes instructor overlap for BIO101-01 with BIO201-01 on Monday (instructor I001). \n\nSections involved:\n- BIO101-01 and BIO201-01 (instructor I001)\n- BIO101-01 and CHEM101-01 (room R101, same day)",
+      "expected_tool": "get_schedule_conflicts",
+      "selected_tools": [
+        "get_schedule_conflicts"
+      ],
+      "tool_correct": true,
+      "expected_terms": [
+        "BIO101-01",
+        "BIO201-01"
+      ],
+      "facts_found": [
+        "BIO101-01",
+        "BIO201-01"
+      ],
+      "fact_coverage": 1.0,
+      "latency_seconds": 3.073,
+      "input_tokens": 555,
+      "output_tokens": 207,
+      "error": null
+    },
+    {
+      "id": "room_conflicts",
+      "question": "Are there any room scheduling conflicts in Spring 2027? Which sections are involved?",
+      "answer": "Yes. There are 2 conflicts in Spring 2027.\n\n- Conflict 1: ROOM_OVERLAP\n  - Sections: BIO101-01 and CHEM101-01\n  - Day: Mon\n  - Room: R101\n\n- Conflict 2: INSTRUCTOR_OVERLAP\n  - Sections: BIO101-01 and BIO201-01\n  - Day: Mon\n  - Instructor: I001",
+      "expected_tool": "get_schedule_conflicts",
+      "selected_tools": [
+        "get_schedule_conflicts"
+      ],
+      "tool_correct": true,
+      "expected_terms": [
+        "BIO101-01",
+        "CHEM101-01"
+      ],
+      "facts_found": [
+        "BIO101-01",
+        "CHEM101-01"
+      ],
+      "fact_coverage": 1.0,
+      "latency_seconds": 2.764,
+      "input_tokens": 555,
+      "output_tokens": 145,
+      "error": null
+    },
+    {
+      "id": "section_count",
+      "question": "How many academic sections are scheduled for Spring 2027?",
+      "answer": "I can fetch the number of academic sections for Spring 2027. Do you want me to pull the full list of sections and then count, or just return the count if available? If you\u2019re ready, I\u2019ll query the system for term 2027-SPRING.",
+      "expected_tool": "get_sections_by_term",
+      "selected_tools": [],
+      "tool_correct": false,
+      "expected_terms": [
+        "4"
+      ],
+      "facts_found": [],
+      "fact_coverage": 0.0,
+      "latency_seconds": 1.323,
+      "input_tokens": 301,
+      "output_tokens": 74,
+      "error": null
+    },
+    {
+      "id": "unsupported_action",
+      "question": "Cancel section BIO101-01 for Spring 2027.",
+      "answer": "I don\u2019t have the ability to cancel sections directly. I can help you proceed with the proper steps or check the records.\n\nOptions:\n- I can look up BIO101-01 in Spring 2027 to confirm its details (term 2027-SPRING) and verify the exact section ID and status.\n- I can guide you on how to cancel through the registrar system if you have access.\n- If you want, I can draft a cancellation request you can send to the department or registrar.\n\nWould you like me to fetch BIO101-01 details for 2027-SPRING first?",
+      "expected_tool": null,
+      "selected_tools": [],
+      "tool_correct": true,
+      "expected_terms": [],
+      "facts_found": [],
+      "fact_coverage": null,
+      "latency_seconds": 1.407,
+      "input_tokens": 301,
+      "output_tokens": 139,
+      "error": null
+    }
+  ]
+}

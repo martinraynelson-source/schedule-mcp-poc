@@ -1,4 +1,5 @@
 import json
+import time
 
 from openai import OpenAI
 
@@ -85,12 +86,20 @@ ALLOWED_TOOLS = {
 }
 
 
-def ask_scheduling_assistant(question: str) -> str:
+def evaluate_scheduling_assistant(question: str) -> dict:
+    started_at = time.perf_counter()
+    selected_tools = []
+    api_usage = []
+
     client = OpenAI()
 
     instructions = (
         "You are an academic scheduling assistant. "
         "Use tools whenever scheduling facts are needed. "
+        "When a user asks for information available through a tool, "
+        "call the appropriate tool immediately. "
+        "Do not ask permission to retrieve information. "
+        "For section counts, retrieve sections and use the returned count. "
         "Available capabilities include scheduling conflicts, "
         "course sections, and classroom availability. "
         "Use 2027-SPRING for Spring 2027. "
@@ -100,7 +109,15 @@ def ask_scheduling_assistant(question: str) -> str:
         "Never claim to have checked information unless "
         "a tool actually returned it. "
         "For unsupported requests, explain the limitation. "
-        "Keep answers concise."
+        "This assistant is strictly READ-ONLY. "
+        "You cannot create, update, delete, cancel, or modify sections. "
+        "Never claim an action was completed unless an authorized "
+        "tool explicitly confirms that action. "
+        "If asked to modify scheduling data, clearly state that "
+        "you cannot perform that action. "
+        "When listing matching sections or rooms, include ALL "
+        "matching records returned by the tool, not just the first. "
+        "Keep answers concise but complete."
     )
 
     response = client.responses.create(
@@ -113,6 +130,11 @@ def ask_scheduling_assistant(question: str) -> str:
         max_output_tokens=400,
     )
 
+    api_usage.append({
+        "input_tokens": response.usage.input_tokens if response.usage else 0,
+        "output_tokens": response.usage.output_tokens if response.usage else 0,
+    })
+
     tool_outputs = []
 
     for item in response.output:
@@ -123,6 +145,11 @@ def ask_scheduling_assistant(question: str) -> str:
             raise ValueError(f"Unsupported tool: {item.name}")
 
         arguments = json.loads(item.arguments)
+
+        selected_tools.append({
+            "name": item.name,
+            "arguments": arguments,
+        })
 
         # Tenant identity remains fixed inside the MCP adapter.
         result = call_mcp_tool(
@@ -140,7 +167,13 @@ def ask_scheduling_assistant(question: str) -> str:
         )
 
     if not tool_outputs:
-        return response.output_text
+        return {
+            "answer": response.output_text,
+            "selected_tools": selected_tools,
+            "latency_seconds": round(time.perf_counter() - started_at, 3),
+            "input_tokens": sum(u["input_tokens"] for u in api_usage),
+            "output_tokens": sum(u["output_tokens"] for u in api_usage),
+        }
 
     final_response = client.responses.create(
         model="gpt-5-nano",
@@ -155,4 +188,19 @@ def ask_scheduling_assistant(question: str) -> str:
         max_output_tokens=500,
     )
 
-    return final_response.output_text
+    api_usage.append({
+        "input_tokens": final_response.usage.input_tokens if final_response.usage else 0,
+        "output_tokens": final_response.usage.output_tokens if final_response.usage else 0,
+    })
+
+    return {
+        "answer": final_response.output_text,
+        "selected_tools": selected_tools,
+        "latency_seconds": round(time.perf_counter() - started_at, 3),
+        "input_tokens": sum(u["input_tokens"] for u in api_usage),
+        "output_tokens": sum(u["output_tokens"] for u in api_usage),
+    }
+
+
+def ask_scheduling_assistant(question: str) -> str:
+    return evaluate_scheduling_assistant(question)["answer"]
