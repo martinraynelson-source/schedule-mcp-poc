@@ -1,7 +1,7 @@
-import asyncio
 import json
 
 from openai import OpenAI
+
 from mcp_bridge import call_mcp_tool
 
 
@@ -10,23 +10,79 @@ TOOLS = [
         "type": "function",
         "name": "get_schedule_conflicts",
         "description": (
-            "Retrieve academic scheduling conflicts "
-            "for the authorized demo institution."
+            "Find room and instructor scheduling conflicts "
+            "for an academic term."
         ),
         "parameters": {
             "type": "object",
             "properties": {
-                "term_id": {
-                    "type": "string",
-                    "description": "Academic term identifier.",
-                }
+                "term_id": {"type": "string"}
             },
             "required": ["term_id"],
             "additionalProperties": False,
         },
         "strict": True,
-    }
+    },
+    {
+        "type": "function",
+        "name": "get_sections_by_term",
+        "description": (
+            "Retrieve academic course sections, including "
+            "courses, instructors, rooms, days, times, and enrollment. "
+            "Use this to answer questions about specific courses, "
+            "instructors, schedules, or overlapping sections."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "term_id": {"type": "string"}
+            },
+            "required": ["term_id"],
+            "additionalProperties": False,
+        },
+        "strict": True,
+    },
+    {
+        "type": "function",
+        "name": "find_available_rooms",
+        "description": (
+            "Find available classrooms for a specified academic term, "
+            "day, time interval, and minimum seating capacity. "
+            "Times must use 24-hour HH:MM format."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "term_id": {"type": "string"},
+                "day": {
+                    "type": "string",
+                    "enum": [
+                        "MON", "TUE", "WED", "THU",
+                        "FRI", "SAT", "SUN"
+                    ],
+                },
+                "start": {"type": "string"},
+                "end": {"type": "string"},
+                "minimum_capacity": {"type": "integer"},
+            },
+            "required": [
+                "term_id",
+                "day",
+                "start",
+                "end",
+                "minimum_capacity",
+            ],
+            "additionalProperties": False,
+        },
+        "strict": True,
+    },
 ]
+
+ALLOWED_TOOLS = {
+    "get_schedule_conflicts",
+    "get_sections_by_term",
+    "find_available_rooms",
+}
 
 
 def ask_scheduling_assistant(question: str) -> str:
@@ -34,13 +90,16 @@ def ask_scheduling_assistant(question: str) -> str:
 
     instructions = (
         "You are an academic scheduling assistant. "
-        "Use tools for scheduling facts. "
-        "Only scheduling conflict information is available "
-        "through the AI interface at this stage. "
+        "Use tools whenever scheduling facts are needed. "
+        "Available capabilities include scheduling conflicts, "
+        "course sections, and classroom availability. "
         "Use 2027-SPRING for Spring 2027. "
+        "For room searches, use minimum_capacity=0 if the "
+        "user does not specify a capacity. "
         "Do not invent scheduling data. "
         "Never claim to have checked information unless "
         "a tool actually returned it. "
+        "For unsupported requests, explain the limitation. "
         "Keep answers concise."
     )
 
@@ -60,14 +119,14 @@ def ask_scheduling_assistant(question: str) -> str:
         if item.type != "function_call":
             continue
 
-        if item.name != "get_schedule_conflicts":
+        if item.name not in ALLOWED_TOOLS:
             raise ValueError(f"Unsupported tool: {item.name}")
 
         arguments = json.loads(item.arguments)
 
-        # The tenant identity is fixed inside the MCP adapter.
+        # Tenant identity remains fixed inside the MCP adapter.
         result = call_mcp_tool(
-            "get_schedule_conflicts",
+            item.name,
             arguments,
             server_name="server_api_adapter.py",
         )

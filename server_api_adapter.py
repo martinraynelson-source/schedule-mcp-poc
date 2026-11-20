@@ -8,6 +8,8 @@ from scheduling_api import (
     RequestContext,
     SchedulingAPIError,
     get_schedule_conflicts as api_get_schedule_conflicts,
+    get_sections_by_term as api_get_sections_by_term,
+    find_available_rooms as api_find_available_rooms,
 )
 
 mcp = FastMCP("Schedule API Adapter")
@@ -41,6 +43,60 @@ def get_schedule_conflicts(term_id: str) -> str:
             })
         ) from error
 
+
+
+
+@mcp.tool()
+def get_sections_by_term(term_id: str) -> str:
+    """Retrieve academic sections for the authorized tenant and term."""
+
+    try:
+        result = api_get_sections_by_term(
+            context=DEMO_CONTEXT,
+            term_id=term_id,
+        )
+        return json.dumps(result)
+
+    except SchedulingAPIError as error:
+        raise ValueError(
+            json.dumps({
+                "status": "error",
+                "code": error.code,
+                "message": str(error),
+            })
+        ) from error
+
+
+
+@mcp.tool()
+def find_available_rooms(
+    term_id: str,
+    day: str,
+    start: str,
+    end: str,
+    minimum_capacity: int = 0,
+) -> str:
+    """Find available rooms for the authorized institution."""
+
+    try:
+        result = api_find_available_rooms(
+            context=DEMO_CONTEXT,
+            term_id=term_id,
+            day=day,
+            start=start,
+            end=end,
+            minimum_capacity=minimum_capacity,
+        )
+        return json.dumps(result)
+
+    except SchedulingAPIError as error:
+        raise ValueError(
+            json.dumps({
+                "status": "error",
+                "code": error.code,
+                "message": str(error),
+            })
+        ) from error
 
 if __name__ == "__main__":
     mcp.run()
