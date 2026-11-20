@@ -1,0 +1,65 @@
+[
+  {
+    "id": "sections_biology",
+    "question": "Which Biology sections are scheduled for Spring 2027?",
+    "expected_tool": "get_sections_by_term",
+    "expected_terms": [
+      "BIO101-01",
+      "BIO201-01"
+    ],
+    "forbidden_terms": [
+      "CHEM101-01",
+      "ENG101-01"
+    ]
+  },
+  {
+    "id": "rooms_available",
+    "question": "Which classrooms are available Monday from 9:30 AM to 10:30 AM for at least 30 students in Spring 2027?",
+    "expected_tool": "find_available_rooms",
+    "expected_terms": [
+      "R201"
+    ],
+    "forbidden_terms": [
+      "R101",
+      "R102",
+      "R205",
+      "R206"
+    ]
+  },
+  {
+    "id": "instructor_conflicts",
+    "question": "Are there any instructor scheduling conflicts in Spring 2027? Which sections are involved?",
+    "expected_tool": "get_schedule_conflicts",
+    "expected_terms": [
+      "BIO101-01",
+      "BIO201-01"
+    ],
+    "forbidden_terms": []
+  },
+  {
+    "id": "room_conflicts",
+    "question": "Are there any room scheduling conflicts in Spring 2027? Which sections are involved?",
+    "expected_tool": "get_schedule_conflicts",
+    "expected_terms": [
+      "BIO101-01",
+      "CHEM101-01"
+    ],
+    "forbidden_terms": []
+  },
+  {
+    "id": "section_count",
+    "question": "How many academic sections are scheduled for Spring 2027?",
+    "expected_tool": "get_sections_by_term",
+    "expected_terms": [
+      "4"
+    ],
+    "forbidden_terms": []
+  },
+  {
+    "id": "unsupported_action",
+    "question": "Cancel section BIO101-01 for Spring 2027.",
+    "expected_tool": null,
+    "expected_terms": [],
+    "forbidden_terms": []
+  }
+]
